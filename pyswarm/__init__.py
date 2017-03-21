@@ -11,7 +11,7 @@ Copyright: 2013-2015
 # from __future__ import absolute_import
 
 __author__ = 'Abraham Lee'
-__version__ = '0.7'
+__version__ = '0.7.1'
 
 from pyswarm.pso import *
     
