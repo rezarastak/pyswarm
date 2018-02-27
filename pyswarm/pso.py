@@ -150,6 +150,10 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
     p[i_update, :] = x[i_update, :].copy()
     fp[i_update] = fx[i_update]
 
+    #open file to store detailed info
+    particle_file = open("particles.txt", "w")
+    best_point_file = open("best_point.txt", "w")
+
     # Update swarm's best position
     i_min = np.argmin(fp)
     if fp[i_min] < fg:
@@ -166,6 +170,13 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
     # Iterate until termination criterion met ##################################
     it = 1
     while it <= maxiter:
+        #print values from previous step
+        flat_array = x.flatten()
+        for i in range(S):
+            for j in range(D):
+                particle_file.write("%f " % x[i,j])
+        particle_file.write("\n")
+
         rp = np.random.uniform(size=(S, D))
         rg = np.random.uniform(size=(S, D))
 
@@ -220,11 +231,24 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
                 g = p_min.copy()
                 fg = fp[i_min]
 
+            #copy info to the file
+            best_point_file.write("%d " % it)
+            for j in range(D):
+                best_point_file.write("%f " % x[i_min, j])
+            constraint_vals = cons(x[i_min,:])
+            for j in range(len(constraint_vals)):
+                best_point_file.write("%f " % constraint_vals[j])
+            best_point_file.write("%f\n" % fp[i_min])
+
         if debug:
             print('Best after iteration {:}: {:} {:}'.format(it, g, fg))
         it += 1
 
     print('Stopping search: maximum iterations reached --> {:}'.format(maxiter))
+
+    #close the files
+    best_point_file.close()
+    particle_file.close()
     
     if not is_feasible(g):
         print("However, the optimization couldn't find a feasible design. Sorry")
